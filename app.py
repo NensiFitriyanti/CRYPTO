@@ -3,15 +3,21 @@ import pandas as pd
 import requests
 import time
 
-st.set_page_config(page_title="Crypto Trend", layout="wide")
+st.set_page_config(page_title="Crypto Trend Realtime", layout="wide")
 
-st.title("📈Crypto Price Trend")
-st.write("CoinGecko API")
+st.title("📈 Real-Time Crypto Price Trend")
+st.write("Data diambil dari CoinGecko API (Polling 1 detik, bebas API Key).")
 
 # pilih crypto
 crypto = st.selectbox(
     "Pilih Cryptocurrency:",
     ["bitcoin", "ethereum", "binancecoin", "dogecoin", "solana", "cardano", "ripple"]
+)
+
+placeholder_chart.line_chart(
+    st.session_state.df,
+    x="time",
+    y="price"
 )
 
 st.write(f"Menampilkan trend harga **{crypto.capitalize()}** terhadap USD.")
@@ -46,7 +52,7 @@ if price is not None:
     placeholder_price.markdown(
         f"""
         ### 💰 Harga Terbaru: **{price:.5f} USD**  
-        ⏳ Auto refresh
+        ⏳ Auto refresh setiap 1 detik
         """
     )
 
@@ -58,8 +64,44 @@ if price is not None:
 else:
     placeholder_price.error("Tidak bisa mengambil harga. Coba lagi.")
 
+
+import plotly.graph_objects as go
+
+df = st.session_state.df
+
+# 1️⃣ Plotly Line Chart
+fig_line = go.Figure()
+fig_line.add_trace(go.Scatter(
+    x=df["time"], 
+    y=df["price"],
+    mode="lines",
+    line=dict(color="#00ccff", width=3)
+))
+fig_line.update_layout(
+    title="🌐 Trend Harga (Plotly Line Chart)",
+    height=350,
+    template="plotly_dark"
+)
+st.plotly_chart(fig_line, use_container_width=True)
+
+# 2️⃣ Plotly Area Chart
+fig_area = go.Figure()
+fig_area.add_trace(go.Scatter(
+    x=df["time"], 
+    y=df["price"],
+    fill="tozeroy",
+    mode="lines",
+    line=dict(color="#00ff88", width=2)
+))
+fig_area.update_layout(
+    title="🌄 Grafik Area (Gradient)",
+    height=300,
+    template="plotly_dark"
+)
+st.plotly_chart(fig_area, use_container_width=True)
+
+
 # auto refresh
 time.sleep(1)
 st.experimental_set_query_params(refresh=str(time.time()))
-
 
