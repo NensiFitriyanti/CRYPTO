@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import requests
 import time
+import plotly.graph_objects as go
 
 st.set_page_config(page_title="Crypto Trend Realtime", layout="wide")
 
@@ -14,21 +15,23 @@ crypto = st.selectbox(
     ["bitcoin", "ethereum", "binancecoin", "dogecoin", "solana", "cardano", "ripple"]
 )
 
-placeholder_chart.line_chart(
-    st.session_state.df,
-    x="time",
-    y="price"
-)
-
 st.write(f"Menampilkan trend harga **{crypto.capitalize()}** terhadap USD.")
 
-# session data
+# ------------------------------------
+# SESSION STATE
+# ------------------------------------
 if "df" not in st.session_state:
     st.session_state.df = pd.DataFrame(columns=["time", "price"])
 
+# ------------------------------------
+# PLACEHOLDERS HARUS DI SINI
+# ------------------------------------
 placeholder_price = st.empty()
 placeholder_chart = st.empty()
 
+# ------------------------------------
+# GET PRICE FUNCTION
+# ------------------------------------
 def get_price(coin):
     try:
         url = f"https://api.coingecko.com/api/v3/simple/price?ids={coin}&vs_currencies=usd"
@@ -38,7 +41,9 @@ def get_price(coin):
     except:
         return None
 
-# fetch harga
+# ------------------------------------
+# FETCH PRICE
+# ------------------------------------
 price = get_price(crypto)
 
 if price is not None:
@@ -48,7 +53,6 @@ if price is not None:
     if len(st.session_state.df) > 300:
         st.session_state.df = st.session_state.df.iloc[-300:]
 
-    # FIXED → pakai triple quotes
     placeholder_price.markdown(
         f"""
         ### 💰 Harga Terbaru: **{price:.5f} USD**  
@@ -56,6 +60,9 @@ if price is not None:
         """
     )
 
+    # ------------------------------------
+    # GRAFIK STREAMLIT YANG PUNYA KAMU
+    # ------------------------------------
     placeholder_chart.line_chart(
         st.session_state.df,
         x="time",
@@ -65,8 +72,9 @@ else:
     placeholder_price.error("Tidak bisa mengambil harga. Coba lagi.")
 
 
-import plotly.graph_objects as go
-
+# ------------------------------------
+# PLOTLY CHARTS (tambahan)
+# ------------------------------------
 df = st.session_state.df
 
 # 1️⃣ Plotly Line Chart
@@ -100,8 +108,8 @@ fig_area.update_layout(
 )
 st.plotly_chart(fig_area, use_container_width=True)
 
-
-# auto refresh
+# ------------------------------------
+# AUTO REFRESH
+# ------------------------------------
 time.sleep(1)
 st.experimental_set_query_params(refresh=str(time.time()))
-
