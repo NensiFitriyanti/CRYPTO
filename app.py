@@ -3,10 +3,10 @@ import pandas as pd
 import requests
 import time
 
-st.set_page_config(page_title="Crypto Trend Realtime", layout="wide")
+st.set_page_config(page_title="Crypto Trend", layout="wide")
 
-st.title("📈 Real-Time Crypto Price Trend")
-st.write("Data diambil dari CoinGecko API (Polling 1 detik, bebas API Key).")
+st.title("📈Crypto Price Trend")
+st.write("CoinGecko API")
 
 # pilih crypto
 crypto = st.selectbox(
@@ -46,7 +46,7 @@ if price is not None:
     placeholder_price.markdown(
         f"""
         ### 💰 Harga Terbaru: **{price:.5f} USD**  
-        ⏳ Auto refresh setiap 1 detik
+        ⏳ Auto refresh
         """
     )
 
@@ -61,4 +61,5 @@ else:
 # auto refresh
 time.sleep(1)
 st.experimental_set_query_params(refresh=str(time.time()))
+
 
